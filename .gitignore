@@ -1,1 +1,6 @@
 file.json
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+providers.tf
+.terraform*
