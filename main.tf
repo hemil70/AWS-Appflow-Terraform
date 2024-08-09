@@ -29,7 +29,7 @@ resource "aws_s3_bucket_policy" "appflow_bucket_policy" {
 }
 
 module "github" {
-  source = "./github"
+  source = "./custom"
 
   connector_profile_name      = var.connector_profile_name
   connection_mode             = var.connection_mode
