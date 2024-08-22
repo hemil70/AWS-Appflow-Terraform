@@ -158,22 +158,24 @@ resource "aws_appflow_flow" "appflow" {
     }
   }
 
-  task {
-    source_fields     = var.task.source_fields
-    task_type         = var.task.task_type
-    destination_field = var.task.destination_field
-    task_properties   = var.task.task_properties
-    dynamic "connector_operator" {
-      for_each = var.task.connector_type != "" && var.task.connector_value != "" ? [var.task.connector_type] : []
-      content {
-        s3               = var.task.connector_type == "s3" ? var.task.connector_value : null
-        sapo_data        = var.task.connector_type == "sapo_data" ? var.task.connector_value : null
-        service_now      = var.task.connector_type == "service_now" ? var.task.connector_value : null
-        veeva            = var.task.connector_type == "veeva" ? var.task.connector_value : null
-        custom_connector = var.task.connector_type == "custom_connector" ? var.task.connector_value : null
+  dynamic "task" {
+    for_each = var.tasks
+    content {
+      connector_operator {
+        s3               = task.value.connector_type == "s3" ? task.value.connector_operator : null
+        sapo_data        = task.value.connector_type == "sapo_data" ? task.value.connector_operator : null
+        service_now      = task.value.connector_type == "service_now" ? task.value.connector_operator : null
+        veeva            = task.value.connector_type == "veeva" ? task.value.connector_operator : null
+        custom_connector = task.value.connector_type == "custom_connector" ? task.value.connector_operator : null
       }
+
+      source_fields     = task.value.source_fields
+      task_type         = task.value.task_type
+      destination_field = try(task.value.destination_field, "")
+      task_properties   = task.value.task_properties
     }
   }
+
 
   trigger_config {
     trigger_type = var.trigger_type

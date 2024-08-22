@@ -81,11 +81,5 @@ module "github_flow" {
       bucket_name = aws_s3_bucket.appflow_bucket.bucket
     }
   }
-  task = {
-    source_fields     = var.appflow.task.source_fields
-    task_type         = var.appflow.task.task_type
-    destination_field = var.appflow.task.destination_field
-    connector_type    = var.appflow.task.connector_type
-    connector_value   = var.appflow.task.connector_value
-  }
+  tasks = var.appflow.tasks
 }

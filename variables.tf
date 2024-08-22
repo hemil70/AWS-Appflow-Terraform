@@ -38,12 +38,13 @@ variable "appflow" {
     api_version                = string
     entity_name                = string
     destination_connector_type = string
-    task = object({
-      source_fields     = list(string)
-      task_type         = string
-      destination_field = string
-      connector_type    = string
-      connector_value   = string
-    })
+    tasks = list(object({
+      source_fields      = list(string)
+      task_type          = string
+      connector_type     = string # Type of the connector, e.g., "s3", "sapo_data"
+      connector_operator = string # Value for the connector operator
+      destination_field  = string
+      task_properties    = optional(map(string)) # Optional
+    }))
   })
 }

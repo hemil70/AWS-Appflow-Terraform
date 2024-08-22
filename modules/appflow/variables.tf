@@ -189,29 +189,16 @@ variable "destination_connector_properties" {
   }
 }
 
-variable "task" {
-  description = " A Task that Amazon AppFlow performs while transferring the data in the flow run"
-  type = object({
-    source_fields     = list(string)              # Source fields to which a particular task is applied.
-    task_type         = string                    # Particular task implementation that Amazon AppFlow performs. Valid values are Arithmetic, Filter, Map, Map_all, Mask, Merge, Passthrough, Truncate, and Validate
-    destination_field = optional(string)          # Field in a destination connector, or a field value against which Amazon AppFlow validates a source field.
-    task_properties   = optional(map(string))     # Map used to store task-related information. The execution service looks for particular information based on the TaskType. Valid keys are VALUE, VALUES, DATA_TYPE, UPPER_BOUND, LOWER_BOUND, SOURCE_DATA_TYPE, DESTINATION_DATA_TYPE, VALIDATION_ACTION, MASK_VALUE, MASK_LENGTH, TRUNCATE_LENGTH, MATH_OPERATION_FIELDS_ORDER, CONCAT_FORMAT, SUBFIELD_CATEGORY_MAP, and EXCLUDE_SOURCE_FIELDS_LIST
-    connector_type    = optional(string)          # Source connector type
-    connector_value   = optional(string, "NO_OP") # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/appflow_flow#connector-operator:~:text=and%20EXCLUDE_SOURCE_FIELDS_LIST.-,Connector%20Operator,-amplitude%20%2D%20(Optional)%20Operation
-  })
-  default = {
-    source_fields     = [""]
-    destination_field = ""
-    task_type         = "Map_all"
-  }
-  validation {
-    condition     = contains(["Arithmetic", "Filter", "Map", "Map_all", "Mask", "Merge", "Passthrough", "Truncate", "Validate"], var.task.task_type)
-    error_message = "Invalid task type. Valid values are Arithmetic, Filter, Map, Map_all, Mask, Merge, Passthrough, Truncate, and Validate."
-  }
-  validation {
-    condition     = contains(["s3", "sapo_data", "service_now", "veeva", "custom_connector"], var.task.connector_type)
-    error_message = "Invalid task type. Valid values are s3, sapo_data, service_now, veeva, custom_connector."
-  }
+variable "tasks" {
+  description = "List of tasks to be performed in the flow."
+  type = list(object({
+    source_fields      = list(string)
+    task_type          = string
+    connector_type     = string # Type of the connector, e.g., "s3", "sapo_data"
+    connector_operator = string # Value for the connector operator
+    destination_field  = string
+    task_properties    = optional(map(string)) # Optional
+  }))
 }
 
 variable "trigger_type" {
