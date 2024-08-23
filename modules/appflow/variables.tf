@@ -196,7 +196,7 @@ variable "tasks" {
     task_type          = string
     connector_type     = string # Type of the connector, e.g., "s3", "sapo_data"
     connector_operator = string # Value for the connector operator
-    destination_field  = string
+    destination_field  = optional(string)
     task_properties    = optional(map(string)) # Optional
   }))
 }
