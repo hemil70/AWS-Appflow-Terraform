@@ -17,7 +17,7 @@ resource "aws_appflow_flow" "appflow" {
   source_flow_config {
     connector_type         = var.source_connector_type
     api_version            = var.api_version
-    connector_profile_name = var.connector_profile_name
+    connector_profile_name = var.source_connector_profile_name
     dynamic "incremental_pull_config" {
       for_each = var.incremental_pull_config != null ? [var.incremental_pull_config] : []
       content {
@@ -74,7 +74,7 @@ resource "aws_appflow_flow" "appflow" {
   destination_flow_config {
     connector_type         = var.destination_connector_type
     api_version            = var.api_version
-    connector_profile_name = var.connector_profile_name
+    connector_profile_name = var.destination_connector_profile_name
 
     destination_connector_properties {
       dynamic "redshift" {
@@ -168,14 +168,12 @@ resource "aws_appflow_flow" "appflow" {
         veeva            = task.value.connector_type == "veeva" ? task.value.connector_operator : null
         custom_connector = task.value.connector_type == "custom_connector" ? task.value.connector_operator : null
       }
-
       source_fields     = task.value.source_fields
       task_type         = task.value.task_type
       destination_field = try(task.value.destination_field, "")
       task_properties   = task.value.task_properties
     }
   }
-
 
   trigger_config {
     trigger_type = var.trigger_type

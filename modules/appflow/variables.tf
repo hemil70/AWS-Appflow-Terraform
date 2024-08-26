@@ -47,7 +47,7 @@ variable "api_version" {
   default     = null
 }
 
-variable "connector_profile_name" {
+variable "source_connector_profile_name" {
   type        = string
   description = "Name of the connector profile. This name must be unique for each connector profile in the AWS account"
   default     = null
@@ -122,11 +122,15 @@ variable "destination_connector_type" {
   type        = string
 
   validation {
-    condition = contains([
-      "S3", "Redshift", "Snowflake", "CustomConnector"
-    ], var.destination_connector_type)
+    condition     = contains(["S3", "Redshift", "Snowflake", "CustomConnector"], var.destination_connector_type)
     error_message = "Invalid destination_connector_type. Valid values are Only S3, Redshift, CustomConnector and Snowflake"
   }
+}
+
+variable "destination_connector_profile_name" {
+  type        = string
+  description = "Name of the connector profile. This name must be unique for each connector profile in the AWS account"
+  default     = null
 }
 
 variable "destination_connector_properties" {
@@ -171,11 +175,11 @@ variable "destination_connector_properties" {
       object                   = optional(string) # Object specified in the Amazon Redshift flow destination.
     }))
     snowflake = optional(object({
-      error_handling_config = object({
+      error_handling_config = optional(object({
         bucket_name                     = optional(string)
         bucket_prefix                   = optional(string)
         fail_on_first_destination_error = optional(bool)
-      })
+      }))
       intermediate_bucket_name = string           # Intermediate bucket that Amazon AppFlow uses when moving data into Amazon Snowflake.
       bucket_prefix            = optional(string) # Object key for the bucket in which Amazon AppFlow places the destination files.
       object                   = optional(string) # Object specified in the Amazon Snowflake flow destination
