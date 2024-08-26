@@ -26,19 +26,10 @@ variable "connector_profile_connector_type" {
 
 variable "connector_profile_connector_label" {
   type        = string
-  description = "The unique label for each ConnectorRegistration in your AWS account. Only needed if calling for CustomConnector connector type"
+  description = "The unique label for each ConnectorRegistration in your AWS account. Required if calling for CustomConnector connector type. Allowed values are 'GitHub', 'MicrosoftTeams', 'GitLab', 'GoogleBigQuery', 'JiraCloud', 'MicrosoftDynamics365', 'MicrosoftSharePointOnline', 'SalesforceMarketingCloud', and 'Zoom'"
   default     = null
-
-  validation {
-    condition     = var.connector_profile_connector_type != "CustomConnector" || (var.connector_profile_connector_type == "CustomConnector" && var.connector_profile_connector_label != null)
-    error_message = "connector_profile_connector_label must be provided when connector_profile_connector_type is 'CustomConnector'."
-  }
-
-  validation {
-    condition     = contains(["GitHub", "MicrosoftTeams", "GitLab", "GoogleBigQuery", "JiraCloud", "MicrosoftDynamics365", "MicrosoftSharePointOnline", "SalesforceMarketingCloud", "Zoom"], var.connector_profile_connector_label)
-    error_message = "Invalid value for 'connector_label'. Allowed values are 'GitHub', 'MicrosoftTeams', 'GitLab', 'GoogleBigQuery', 'JiraCloud', 'MicrosoftDynamics365', 'MicrosoftSharePointOnline', 'SalesforceMarketingCloud', and 'Zoom'"
-  }
 }
+
 
 variable "connector_profile_kms_arn" {
   type        = string
@@ -121,10 +112,6 @@ variable "connector_profile_credentials" {
     condition     = var.connector_profile_credentials.custom_connector != null || var.connector_profile_credentials.veeva != null || var.connector_profile_credentials.snowflake != null || var.connector_profile_credentials.service_now != null || var.connector_profile_credentials.redshift != null || var.connector_profile_credentials.sapo_data != null || var.connector_profile_credentials.google_analytics != null
     error_message = "At least one of the connector profile credentials must be defined."
   }
-  validation {
-    condition     = contains(["APIKEY", "BASIC", "CUSTOM", "OAUTH2"], var.connector_profile_credentials.custom_connector.authentication_type)
-    error_message = "Invalid value for 'authentication_type'. Allowed values are 'APIKEY', 'BASIC', 'CUSTOM', and 'OAUTH2'"
-  }
   default = {
     custom_connector = null
     veeva            = null
@@ -196,9 +183,5 @@ variable "connector_profile_properties" {
     redshift         = null
     sapo_data        = null
     google_analytics = null
-  }
-  validation {
-    condition     = contains(["AUTHORIZATION_CODE", "CLIENT_CREDENTIALS"], var.connector_profile_properties.custom_connector.oauth2_properties.oauth2_grant_type)
-    error_message = "Invalid value for 'oauth2_grant_type'. Allowed values are 'AUTHORIZATION_CODE' and 'CLIENT_CREDENTIALS'"
   }
 }
