@@ -161,6 +161,10 @@ resource "aws_appflow_flow" "appflow" {
   dynamic "task" {
     for_each = var.tasks
     content {
+      source_fields     = task.value.source_fields
+      task_type         = task.value.task_type
+      destination_field = try(task.value.destination_field, "")
+      task_properties   = task.value.task_properties
       connector_operator {
         s3               = task.value.connector_type == "s3" ? task.value.connector_operator : null
         sapo_data        = task.value.connector_type == "sapo_data" ? task.value.connector_operator : null
@@ -168,10 +172,6 @@ resource "aws_appflow_flow" "appflow" {
         veeva            = task.value.connector_type == "veeva" ? task.value.connector_operator : null
         custom_connector = task.value.connector_type == "custom_connector" ? task.value.connector_operator : null
       }
-      source_fields     = task.value.source_fields
-      task_type         = task.value.task_type
-      destination_field = try(task.value.destination_field, "")
-      task_properties   = task.value.task_properties
     }
   }
 

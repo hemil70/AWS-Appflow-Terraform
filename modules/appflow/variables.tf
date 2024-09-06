@@ -67,9 +67,9 @@ variable "source_connector_properties" {
     s3 = optional(object({
       bucket_name   = string               # Amazon S3 bucket name where the source files are stored
       bucket_prefix = optional(string, "") # Object key for the Amazon S3 bucket in which the source files are stored
-      s3_input_format_config = optional(object({
+      s3_input_format_config = object({
         s3_input_file_type = optional(string, "JSON") # File type that Amazon AppFlow gets from your Amazon S3 bucket. Valid values are CSV and JSON
-      }))
+      })
     }))
     veeva = optional(object({
       object               = string           # Object specified in the Veeva flow source
@@ -182,7 +182,7 @@ variable "destination_connector_properties" {
       }))
       intermediate_bucket_name = string           # Intermediate bucket that Amazon AppFlow uses when moving data into Amazon Snowflake.
       bucket_prefix            = optional(string) # Object key for the bucket in which Amazon AppFlow places the destination files.
-      object                   = optional(string) # Object specified in the Amazon Snowflake flow destination
+      object                   = string           # Object specified in the Amazon Snowflake flow destination
     }))
   })
   default = {
@@ -194,20 +194,20 @@ variable "destination_connector_properties" {
 }
 
 variable "tasks" {
-  description = "List of tasks to be performed in the flow."
+  description = "List of tasks to be performed in the flow. A Task that Amazon AppFlow performs while transferring the data in the flow run"
   type = list(object({
-    source_fields      = list(string)
-    task_type          = string
-    connector_type     = string # Type of the connector, e.g., "s3", "sapo_data"
-    connector_operator = string # Value for the connector operator
-    destination_field  = optional(string)
-    task_properties    = optional(map(string)) # Optional
+    source_fields      = list(string)          # Source fields to which a particular task is applied
+    task_type          = string                # Particular task implementation that Amazon AppFlow performs. Valid values are Arithmetic, Filter, Map, Map_all, Mask, Merge, Passthrough, Truncate, and Validate
+    destination_field  = optional(string)      # Field in a destination connector, or a field value against which Amazon AppFlow validates a source field
+    task_properties    = optional(map(string)) # Map used to store task-related information. The execution service looks for particular information based on the TaskType. Valid keys are VALUE, VALUES, DATA_TYPE, UPPER_BOUND, LOWER_BOUND, SOURCE_DATA_TYPE, DESTINATION_DATA_TYPE, VALIDATION_ACTION, MASK_VALUE, MASK_LENGTH, TRUNCATE_LENGTH, MATH_OPERATION_FIELDS_ORDER, CONCAT_FORMAT, SUBFIELD_CATEGORY_MAP, and EXCLUDE_SOURCE_FIELDS_LIST
+    connector_type     = string                # Type of the connector, e.g., "s3", "sapo_data"
+    connector_operator = string                # Operation to be performed on the provided source fields   
   }))
 }
 
 variable "trigger_type" {
   type        = string
-  description = "Flow Trigger type"
+  description = "Flow Trigger type. Allowed: 'Scheduled', 'Event', and 'OnDemand'"
   default     = "OnDemand"
 
   validation {
@@ -219,13 +219,13 @@ variable "trigger_type" {
 variable "trigger_properties" {
   description = "Configuration details of a schedule-triggered flow as defined by the user. only apply to the 'Scheduled' trigger type"
   type = object({
-    schedule_expression  = string
-    data_pull_mode       = optional(string)
-    first_execution_from = optional(number)
-    schedule_end_time    = optional(number)
-    schedule_offset      = optional(number)
-    schedule_start_time  = optional(number)
-    timezone             = optional(string)
+    schedule_expression  = string           # Scheduling expression that determines the rate at which the schedule will run, for example rate(5minutes)
+    data_pull_mode       = optional(string) # Whether a scheduled flow has an incremental data transfer or a complete data transfer for each flow run. Valid values are Incremental and Complete
+    first_execution_from = optional(number) # Date range for the records to import from the connector in the first flow run. Must be a valid RFC3339 timestamp
+    schedule_end_time    = optional(number) # Scheduled end time for a schedule-triggered flow. Must be a valid RFC3339 timestamp
+    schedule_offset      = optional(number) # Optional offset that is added to the time interval for a schedule-triggered flow. Maximum value of 36000
+    schedule_start_time  = optional(number) # Scheduled start time for a schedule-triggered flow. Must be a valid RFC3339 timestamp
+    timezone             = optional(string) # Time zone used when referring to the date and time of a scheduled-triggered flow, such as America/New_York
   })
   default = null
 }
